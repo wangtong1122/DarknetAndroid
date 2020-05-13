@@ -19,10 +19,10 @@ char *voc_names[] = {"aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "c
 //rewrite test demo for android
 double test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh, char *outfile, int fullscreen)
 {
-    LOGD("data=%s",datacfg);
-    LOGD("cfg=%s",cfgfile);
-    LOGD("wei=%s",weightfile);
-    LOGD("img=%s",filename);
+//    LOGD("data=%s",datacfg);
+//    LOGD("cfg=%s",cfgfile);
+//    LOGD("wei=%s",weightfile);
+//    LOGD("img=%s",filename);
 
     //list *options = read_data_cfg(datacfg);
     char *name_list = "/sdcard/yolo/data/coco.names";//option_find_str(options, "names", "data/names.list");
@@ -70,7 +70,7 @@ double test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filen
         time=what_time_is_it_now();
         network_predict(net, X);
         time = what_time_is_it_now()-time;
-        LOGD("%s: Predicted in %f seconds.\n", input, time);
+//        LOGD("%s: Predicted in %f seconds.\n", input, time);
         int nboxes = 0;
         detection *dets = get_network_boxes(net, im.w, im.h, thresh, hier_thresh, 0, 1, &nboxes);
         //printf("%d\n", nboxes);
@@ -155,18 +155,18 @@ Java_com_example_chenty_demoyolo_Yolo_detectimg(JNIEnv *env, jobject obj, jobjec
     AndroidBitmapInfo srcInfo, dstInfo;
     if (ANDROID_BITMAP_RESULT_SUCCESS != AndroidBitmap_getInfo(env, src, &srcInfo)
         || ANDROID_BITMAP_RESULT_SUCCESS != AndroidBitmap_getInfo(env, dst, &dstInfo)) {
-        LOGE("get bitmap info failed");
+//        LOGE("get bitmap info failed");
         return false;
     }
 
     void *srcBuf, *dstBuf;
     if (ANDROID_BITMAP_RESULT_SUCCESS != AndroidBitmap_lockPixels(env, src, &srcBuf)) {
-        LOGE("lock src bitmap failed");
+//        LOGE("lock src bitmap failed");
         return false;
     }
 
     if (ANDROID_BITMAP_RESULT_SUCCESS != AndroidBitmap_lockPixels(env, dst, &dstBuf)) {
-        LOGE("lock dst bitmap failed");
+//        LOGE("lock dst bitmap failed");
         return false;
     }
 

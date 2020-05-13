@@ -21,9 +21,9 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-unknown-pragmas -Wfatal-errors -f
 #neno opt
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -O3 -fstrict-aliasing -fprefetch-loop-arrays")
 #openmp opt
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -fopenmp -fexceptions -Dlinux -fsigned-char")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -fexceptions -Dlinux -fsigned-char")
 
-set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -lm -pthread -fopenmp")
+set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -lm -pthread ")
 
 file(GLOB darknet_files "src/main/cpp/darknet/src/*.c")
 
@@ -63,7 +63,6 @@ target_link_libraries( # Specifies the target library.
                        darknetlib
                        #add for bitmap
                        jnigraphics
-                       gomp
                        # Links the target library to the log library
                        # included in the NDK.
                        ${log-lib} )

@@ -38,7 +38,7 @@ NDK也不需要什么特别的设置 直接用即可
 ```c
 #C Flag
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-unknown-pragmas -Wfatal-errors -fPIC")
-set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -lm -pthread -fopenmp")
+set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -lm -pthread")
 
 #Cmakefilelist
 file(GLOB darknet_files "src/main/cpp/darknet/src/*.c")
