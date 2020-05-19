@@ -109,6 +109,51 @@ char *option_find_str(list *l, char *key, char *def)
     return def;
 }
 
+int option_have_char(list *l, char *key,char str){
+    char *v = option_find(l, key);
+    int n=0;
+    if(v){
+         int len = strlen(v);
+         int i;
+         for(i = 0; i < len; ++i){
+             if (v[i] == ',') ++n;
+         }
+    }
+    return n;
+    
+}
+
+int *option_find_int_list(list *l, char *key, int def)
+{
+    // stride=2,1
+    static int  steps[2];
+    steps[0] = def;
+    steps[1] = def;
+
+    char *v = option_find(l, key);
+    
+    if(v){
+        int len = strlen(v);
+        int n = 1;
+        int i;
+        for(i = 0; i < len; ++i){
+            if (v[i] == ',') ++n;
+        }
+        if(n>2){n=2;}
+        for(i = 0; i < n; ++i){
+            float scale = atof(v);
+            v = strchr(v, ',')+1;
+            steps[i] = scale;
+        }
+        if(n==1){
+            steps[1] = steps[0];
+        }
+    }
+    
+    return steps;
+}
+
+
 int option_find_int(list *l, char *key, int def)
 {
     char *v = option_find(l, key);

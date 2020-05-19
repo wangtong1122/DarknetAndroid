@@ -19,7 +19,7 @@ include_directories(
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-unknown-pragmas -Wfatal-errors -fPIC")
 #neno opt
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -O3 -fstrict-aliasing -fprefetch-loop-arrays")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -O3 -fstrict-aliasing")
 #openmp opt
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -fexceptions -Dlinux -fsigned-char")
 

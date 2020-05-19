@@ -175,6 +175,7 @@ void cudnn_convolutional_setup(layer *l)
 
 convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int n, int groups, int size, int stride, int padding, ACTIVATION activation, int batch_normalize, int binary, int xnor, int adam)
 {
+    //n ==filters
     int i;
     convolutional_layer l = {0};
     l.type = CONVOLUTIONAL;
@@ -342,30 +343,7 @@ void denormalize_convolutional_layer(convolutional_layer l)
     }
 }
 
-/*
-void test_convolutional_layer()
-{
-    convolutional_layer l = make_convolutional_layer(1, 5, 5, 3, 2, 5, 2, 1, LEAKY, 1, 0, 0, 0);
-    l.batch_normalize = 1;
-    float data[] = {1,1,1,1,1,
-        1,1,1,1,1,
-        1,1,1,1,1,
-        1,1,1,1,1,
-        1,1,1,1,1,
-        2,2,2,2,2,
-        2,2,2,2,2,
-        2,2,2,2,2,
-        2,2,2,2,2,
-        2,2,2,2,2,
-        3,3,3,3,3,
-        3,3,3,3,3,
-        3,3,3,3,3,
-        3,3,3,3,3,
-        3,3,3,3,3};
-    //net.input = data;
-    //forward_convolutional_layer(l);
-}
-*/
+
 
 void resize_convolutional_layer(convolutional_layer *l, int w, int h)
 {
@@ -482,6 +460,7 @@ void forward_convolutional_layer(convolutional_layer l, network net)
 
     activate_array(l.output, l.outputs*l.batch, l.activation);
     if(l.binary || l.xnor) swap_binary(&l);
+    
 }
 
 void backward_convolutional_layer(convolutional_layer l, network net)

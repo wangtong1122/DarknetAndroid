@@ -396,6 +396,7 @@ void validate_classifier_single(char *datacfg, char *filename, char *weightfile)
         }
         image im = load_image_color(paths[i], 0, 0);
         image crop = center_crop_image(im, net->w, net->h);
+        //grayscale_image_3c(crop);
         //show_image(im, "orig");
         //show_image(crop, "cropped");
         //cvWaitKey(0);
@@ -805,13 +806,7 @@ void threat_classifier(char *datacfg, char *cfgfile, char *weightfile, int cam_i
     list *options = read_data_cfg(datacfg);
 
     srand(2222222);
-    CvCapture * cap;
-
-    if(filename){
-        cap = cvCaptureFromFile(filename);
-    }else{
-        cap = cvCaptureFromCAM(cam_index);
-    }
+    void * cap = open_video_stream(filename, cam_index, 0,0,0);
 
     int top = option_find_int(options, "top", 1);
 
@@ -933,13 +928,7 @@ void gun_classifier(char *datacfg, char *cfgfile, char *weightfile, int cam_inde
     list *options = read_data_cfg(datacfg);
 
     srand(2222222);
-    CvCapture * cap;
-
-    if(filename){
-        cap = cvCaptureFromFile(filename);
-    }else{
-        cap = cvCaptureFromCAM(cam_index);
-    }
+    void * cap = open_video_stream(filename, cam_index, 0,0,0);
 
     int top = option_find_int(options, "top", 1);
 
@@ -949,8 +938,6 @@ void gun_classifier(char *datacfg, char *cfgfile, char *weightfile, int cam_inde
     int *indexes = calloc(top, sizeof(int));
 
     if(!cap) error("Couldn't connect to webcam.\n");
-    cvNamedWindow("Threat Detection", CV_WINDOW_NORMAL); 
-    cvResizeWindow("Threat Detection", 512, 512);
     float fps = 0;
     int i;
 
@@ -1007,23 +994,10 @@ void demo_classifier(char *datacfg, char *cfgfile, char *weightfile, int cam_ind
     list *options = read_data_cfg(datacfg);
 
     srand(2222222);
-    CvCapture * cap;
 
     int w = 1280;
     int h = 720;
-
-    if(filename){
-        cap = cvCaptureFromFile(filename);
-    }else{
-        cap = cvCaptureFromCAM(cam_index);
-    }
-
-    if(w){
-        cvSetCaptureProperty(cap, CV_CAP_PROP_FRAME_WIDTH, w);
-    }
-    if(h){
-        cvSetCaptureProperty(cap, CV_CAP_PROP_FRAME_HEIGHT, h);
-    }
+    void * cap = open_video_stream(filename, cam_index, w, h, 0);
 
     int top = option_find_int(options, "top", 1);
 
@@ -1034,8 +1008,6 @@ void demo_classifier(char *datacfg, char *cfgfile, char *weightfile, int cam_ind
     int *indexes = calloc(top, sizeof(int));
 
     if(!cap) error("Couldn't connect to webcam.\n");
-    cvNamedWindow(base, CV_WINDOW_NORMAL); 
-    cvResizeWindow(base, 512, 512);
     float fps = 0;
     int i;
 

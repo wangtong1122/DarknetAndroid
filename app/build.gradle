@@ -19,7 +19,7 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                cFlags "-std=c99  -DOMP_NUM_THREADS=8"
+                cFlags "-std=c11  -DOMP_NUM_THREADS=8"
                 cppFlags "-std=c++11 -frtti -fexceptions "
                 abiFilters 'armeabi-v7a','arm64-v8a'
             }

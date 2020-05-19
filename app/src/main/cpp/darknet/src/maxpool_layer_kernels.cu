@@ -7,10 +7,10 @@ extern "C" {
 #include "cuda.h"
 }
 
-__global__ void forward_maxpool_layer_kernel(int n, int in_h, int in_w, int in_c, int stride, int size, int pad, float *input, float *output, int *indexes)
+__global__ void forward_maxpool_layer_kernel(int n, int in_h, int in_w, int in_c, int stridew,int strideh, int size, int pad, float *input, float *output, int *indexes)
 {
-    int h = (in_h + pad - size)/stride + 1;
-    int w = (in_w + pad - size)/stride + 1;
+    int h = (in_h + pad - size)/strideh + 1;
+    int w = (in_w + pad - size)/stridew + 1;
     int c = in_c;
 
     int id = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
@@ -33,8 +33,8 @@ __global__ void forward_maxpool_layer_kernel(int n, int in_h, int in_w, int in_c
     int l, m;
     for(l = 0; l < size; ++l){
         for(m = 0; m < size; ++m){
-            int cur_h = h_offset + i*stride + l;
-            int cur_w = w_offset + j*stride + m;
+            int cur_h = h_offset + i*strideh + l;
+            int cur_w = w_offset + j*stridew + m;
             int index = cur_w + in_w*(cur_h + in_h*(k + b*in_c));
             int valid = (cur_h >= 0 && cur_h < in_h &&
                     cur_w >= 0 && cur_w < in_w);
@@ -47,12 +47,13 @@ __global__ void forward_maxpool_layer_kernel(int n, int in_h, int in_w, int in_c
     indexes[out_index] = max_i;
 }
 
-__global__ void backward_maxpool_layer_kernel(int n, int in_h, int in_w, int in_c, int stride, int size, int pad, float *delta, float *prev_delta, int *indexes)
+__global__ void backward_maxpool_layer_kernel(int n, int in_h, int in_w, int in_c, int stridew,int strideh, int size, int pad, float *delta, float *prev_delta, int *indexes)
 {
-    int h = (in_h + pad - size)/stride + 1;
-    int w = (in_w + pad - size)/stride + 1;
+    int h = (in_h + pad - size)/strideh + 1;
+    int w = (in_w + pad - size)/stridew + 1;
     int c = in_c;
-    int area = (size-1)/stride;
+    int areah = (size-1)/strideh;//backward_maxpool_layer_kernel with each stride
+    int areaw = (size-1)/stridew;
 
     int id = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
     if(id >= n) return;
@@ -71,10 +72,10 @@ __global__ void backward_maxpool_layer_kernel(int n, int in_h, int in_w, int in_
 
     float d = 0;
     int l, m;
-    for(l = -area; l < area+1; ++l){
-        for(m = -area; m < area+1; ++m){
-            int out_w = (j-w_offset)/stride + m;
-            int out_h = (i-h_offset)/stride + l;
+    for(l = -areah; l < areah+1; ++l){
+        for(m = -areaw; m < areaw+1; ++m){
+            int out_w = (j-w_offset)/stridew + m;
+            int out_h = (i-h_offset)/strideh + l;
             int out_index = out_w + w*(out_h + h*(k + c*b));
             int valid = (out_w >= 0 && out_w < w &&
                      out_h >= 0 && out_h < h);
@@ -92,7 +93,7 @@ extern "C" void forward_maxpool_layer_gpu(maxpool_layer layer, network net)
 
     size_t n = h*w*c*layer.batch;
 
-    forward_maxpool_layer_kernel<<<cuda_gridsize(n), BLOCK>>>(n, layer.h, layer.w, layer.c, layer.stride, layer.size, layer.pad, net.input_gpu, layer.output_gpu, layer.indexes_gpu);
+    forward_maxpool_layer_kernel<<<cuda_gridsize(n), BLOCK>>>(n, layer.h, layer.w, layer.c, layer.stridew,layer.strideh, layer.size, layer.pad, net.input_gpu, layer.output_gpu, layer.indexes_gpu);
     check_error(cudaPeekAtLastError());
 }
 
@@ -100,7 +101,7 @@ extern "C" void backward_maxpool_layer_gpu(maxpool_layer layer, network net)
 {
     size_t n = layer.h*layer.w*layer.c*layer.batch;
 
-    backward_maxpool_layer_kernel<<<cuda_gridsize(n), BLOCK>>>(n, layer.h, layer.w, layer.c, layer.stride, layer.size, layer.pad, layer.delta_gpu, net.delta_gpu, layer.indexes_gpu);
+    backward_maxpool_layer_kernel<<<cuda_gridsize(n), BLOCK>>>(n, layer.h, layer.w, layer.c, layer.stridew,layer.strideh, layer.size, layer.pad, layer.delta_gpu, net.delta_gpu, layer.indexes_gpu);
     check_error(cudaPeekAtLastError());
 }
 

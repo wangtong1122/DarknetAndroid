@@ -484,8 +484,13 @@ maxpool_layer parse_maxpool(list *options, size_params params)
 {
     int stride = option_find_int(options, "stride",1);
     int size = option_find_int(options, "size",stride);
-    int padding = option_find_int_quiet(options, "padding", size-1);
 
+    int *strides = option_find_int_list(options,"stride",2);
+    int stridew = strides[1];
+    int strideh =strides[0];
+    //int *sizes   = option_find_int_list(options,"size",2);
+    int padding = option_find_int_quiet(options, "padding", size-1);
+    //printf("size:%d x %d  strides:%d x %d \n", sizes[0],sizes[1], strides[0], strides[1]);
     int batch,h,w,c;
     h = params.h;
     w = params.w;
@@ -493,7 +498,7 @@ maxpool_layer parse_maxpool(list *options, size_params params)
     batch=params.batch;
     if(!(h && w && c)) error("Layer before maxpool layer must output image.");
 
-    maxpool_layer layer = make_maxpool_layer(batch,h,w,c,size,stride,padding);
+    maxpool_layer layer = make_maxpool_layer(batch,h,w,c,size,stridew,strideh,padding);
     return layer;
 }
 
@@ -765,7 +770,7 @@ network *parse_network_cfg(char *filename)
     n = n->next;
     int count = 0;
     free_section(s);
-    fprintf(stderr, "layer     filters    size              input                output\n");
+    fprintf(stderr, "layer     filters    size                  input                output\n");
     while(n){
         params.index = count;
         fprintf(stderr, "%5d ", count);

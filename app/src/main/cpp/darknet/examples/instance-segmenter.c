@@ -2,6 +2,7 @@
 #include <sys/time.h>
 #include <assert.h>
 
+void normalize_image2(image p);
 void train_isegmenter(char *datacfg, char *cfgfile, char *weightfile, int *gpus, int ngpus, int clear, int display)
 {
     int i;
@@ -25,6 +26,10 @@ void train_isegmenter(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
     srand(time(0));
     network *net = nets[0];
     image pred = get_network_image(net);
+
+    image embed = pred;
+    embed.c = 3;
+    embed.data += embed.w*embed.h*80;
 
     int div = net->w/pred.w;
     assert(pred.w * div == net->w);
@@ -98,6 +103,11 @@ void train_isegmenter(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
             pred.c = 80;
             image mask = mask_to_rgb(tr);
             image prmask = mask_to_rgb(pred);
+            image ecopy = copy_image(embed);
+            normalize_image2(ecopy);
+            show_image(ecopy, "embed", 1);
+            free_image(ecopy);
+
             show_image(im, "input", 1);
             show_image(prmask, "pred", 1);
             show_image(mask, "truth", 100);
@@ -177,17 +187,9 @@ void demo_isegmenter(char *datacfg, char *cfg, char *weights, int cam_index, con
     set_batch_network(net, 1);
 
     srand(2222222);
-    CvCapture * cap;
-
-    if(filename){
-        cap = cvCaptureFromFile(filename);
-    }else{
-        cap = cvCaptureFromCAM(cam_index);
-    }
+    void * cap = open_video_stream(filename, cam_index, 0,0,0);
 
     if(!cap) error("Couldn't connect to webcam.\n");
-    cvNamedWindow("Segmenter", CV_WINDOW_NORMAL); 
-    cvResizeWindow("Segmenter", 512, 512);
     float fps = 0;
 
     while(1){
@@ -206,7 +208,7 @@ void demo_isegmenter(char *datacfg, char *cfg, char *weights, int cam_index, con
         image pred = get_network_image(net);
         image prmask = mask_to_rgb(pred);
         show_image(prmask, "Segmenter", 10);
-        
+
         free_image(in_s);
         free_image(in);
         free_image(prmask);
